@@ -22,7 +22,7 @@ public class HibernateFilterAspect {
     @PersistenceContext
     protected EntityManager em;
 
-    @Pointcut("@annotation(com.mtons.mblog.modules.aspect.PostStatusFilter)")
+    @Pointcut("@annotation(com.xiajr.masterblog.modules.aspect.PostStatusFilter)")
     public void filter() {
     }
 

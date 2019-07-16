@@ -8,7 +8,7 @@ spring:
         username: root
         password: xjr@sh
     flyway:
-        enabled: true
+        enabled: false
     jpa:
         database: mysql
         show-sql: false

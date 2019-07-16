@@ -18,17 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-/**
- * @author xiajr
- */
 public class AccountRealm extends AuthorizingRealm {
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private UserRoleService userRoleService;
-
 
     public AccountRealm() {
         super(new AllowAllCredentialsMatcher());
@@ -36,47 +30,48 @@ public class AccountRealm extends AuthorizingRealm {
     }
 
     @Override
-    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-        //从shiro中获取账户信息
-       AccountProfile profile = (AccountProfile)SecurityUtils.getSubject().getPrincipal();
+    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+        AccountProfile profile = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
         if (profile != null) {
             UserVO user = userService.get(profile.getId());
             if (user != null) {
-                //角色权限信息
-                SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
+                SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
                 List<Role> roles = userRoleService.listRoles(user.getId());
+
+                //赋予角色
                 roles.forEach(role -> {
-                   simpleAuthorizationInfo.addRole(role.getName());
-                   role.getPermissions().forEach(permission -> simpleAuthorizationInfo.addStringPermission(permission.getName()));
+                    info.addRole(role.getName());
+
+                    //赋予权限
+                    role.getPermissions().forEach(permission -> info.addStringPermission(permission.getName()));
                 });
-                return simpleAuthorizationInfo;
+                return info;
             }
         }
         return null;
     }
 
     @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
-        UsernamePasswordToken upToken = (UsernamePasswordToken)authenticationToken;
-        AccountProfile profile = userService.login(upToken.getUsername(), String.valueOf(upToken.getPassword()));
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+        UsernamePasswordToken upToken = (UsernamePasswordToken) token;
+        AccountProfile profile = getAccount(userService, token);
 
-        //不存在的用户
         if (null == profile) {
             throw new UnknownAccountException(upToken.getUsername());
         }
 
-        //用户被禁用
         if (profile.getStatus() == Consts.STATUS_CLOSED) {
             throw new LockedAccountException(profile.getName());
         }
 
-        //获取用户信息
-        SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo(profile,authenticationToken.getCredentials(),getName());
-
+        SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(profile, token.getCredentials(), getName());
         Session session = SecurityUtils.getSubject().getSession();
-        //将用户信息放入session
         session.setAttribute("profile", profile);
+        return info;
+    }
 
-        return simpleAuthenticationInfo;
+    protected AccountProfile getAccount(UserService userService, AuthenticationToken token) {
+        UsernamePasswordToken upToken = (UsernamePasswordToken) token;
+        return userService.login(upToken.getUsername(), String.valueOf(upToken.getPassword()));
     }
 }

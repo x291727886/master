@@ -31,18 +31,20 @@
     <logger name="com.mtons.mblog" level="DEBUG"/>
 
     <!-- 测试环境+开发环境，日志级别为INFO且不写日志文件 -->
-    <springProfile name="mysql,h2">
-        <logger name="com.mtons.mblog" additivity="false">
+    <springProfile name="dev,test">
+        <logger name="com.xiajr.masterblog" additivity="false">
             <appender-ref ref="STDOUT"/>
+            <appender-ref ref="FILE" />
         </logger>
         <root level="INFO">
             <appender-ref ref="STDOUT"/>
+            <appender-ref ref="FILE" />
         </root>
     </springProfile>
 
     <!-- 生产环境. 日志级别为WARN且写日志文件-->
     <springProfile name="prod">
-        <logger name="com.mtons.mblog" additivity="false">
+        <logger name="com.xiajr.masterblog" additivity="false">
             <appender-ref ref="STDOUT"/>
             <appender-ref ref="FILE" />
         </logger>

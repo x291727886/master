@@ -38,11 +38,11 @@ spring:
             datetime_format: yyyy-MM-dd HH:mm
             number_format: 0.##
             auto_import: /utils.ftl as utils
-    flyway:
-        enabled: false
-        baseline-on-migrate: true
-        encoding: UTF-8
-        locations: classpath:scripts/migration
+#    flyway:
+#        enabled: false
+#        baseline-on-migrate: true
+#        encoding: UTF-8
+#        locations: classpath:scripts/migration
     jpa:
         show-sql: true
 shiro:
@@ -63,7 +63,7 @@ logging:
     path: /home/blog/logs
     level:
         org.springframework: WARN
-        org.hibernate: WARN
+        org.hibernate: INFO
 
 # site.options.theme: [default|classic]
 site:

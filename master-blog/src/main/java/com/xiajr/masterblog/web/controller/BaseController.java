@@ -128,7 +128,8 @@ public class BaseController {
 
         try {
             SecurityUtils.getSubject().login(token);
-            ret = Result.success(getProfile());
+            AccountProfile profile = getProfile();
+            ret = Result.success(profile);
         } catch (UnknownAccountException e) {
             log.error(e.getMessage());
             ret = Result.failure("用户不存在");
